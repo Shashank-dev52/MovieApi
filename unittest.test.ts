@@ -1,7 +1,7 @@
-// Import dependencies
-const request = require('supertest');
-const express = require('express');
-const axios = require('axios');
+import request from 'supertest';
+import express, { Request, Response } from 'express';
+import axios from 'axios';
+
 const app = express();
 
 // Mock Axios
@@ -40,7 +40,19 @@ const mockCreditsData = {
 const TMDB_URL = 'https://api.themoviedb.org/3';
 const TMDB_API_TOKEN = 'mock_token';
 
-app.get('/movies/:year', async (req, res) => {
+interface Movie {
+    original_title: string;
+    release_date: string;
+    vote_average: number;
+    id: number;
+}
+
+interface Credit {
+    known_for_department: string;
+    name: string;
+}
+
+app.get('/movies/:year', async (req: Request, res: Response) => {
     const { year } = req.params;
     const page = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) : 1;
 
@@ -57,11 +69,12 @@ app.get('/movies/:year', async (req, res) => {
             }
         });
 
-        const movies = movie_data.data.results;
+        // Explicitly type the response data as Movie[]
+        const movies: Movie[] = movie_data.data.results;
 
         // Fetch credits data concurrently
-        const moviePromises = movies.map(async (movie) => {
-            let editors_data = [];
+        const moviePromises = movies.map(async (movie: Movie) => { // Explicitly type movie here
+            let editors_data: string[] = [];
             try {
                 const credits_data = await axios.get(`${TMDB_URL}/movie/${movie.id}/credits?language=en-US`, {
                     headers: {
@@ -71,10 +84,12 @@ app.get('/movies/:year', async (req, res) => {
                 });
 
                 editors_data = credits_data.data.crew
-                    .filter((credit) => credit.known_for_department.toLowerCase().includes('editing'))
-                    .map((credit) => credit.name);
-            } catch (error) {
-                console.error(`Failed to fetch credits for movie ${movie.id}: ${error.message}`);
+                    .filter((credit: any) => credit.known_for_department.toLowerCase().includes('editing'))
+                    .map((credit: any) => credit.name);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error(`Failed to fetch credits for movie ${movie.id}: ${error.message}`);
+                }
             }
 
             return {
@@ -88,12 +103,13 @@ app.get('/movies/:year', async (req, res) => {
         const response = await Promise.all(moviePromises);
 
         res.status(200).json(response);
-    } catch (error) {
-        console.error(`Failed to fetch movies: ${error.message}`);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error(`Failed to fetch movies: ${error.message}`);
+        }
         res.status(500).json({ error: `Failed to fetch movie with year: ${year}` });
     }
 });
-
 
 // Test cases
 
@@ -103,7 +119,7 @@ describe('GET /movies/:year', () => {
     });
 
     it('should return movies and editors successfully', async () => {
-        axios.get.mockImplementation((url) => {
+        (axios.get as jest.Mock).mockImplementation((url: string) => {
             if (url.includes('/discover/movie')) {
                 return Promise.resolve(mockMovieData);
             }
@@ -132,5 +148,5 @@ describe('GET /movies/:year', () => {
         ]);
     });
 
-  
+
 });
