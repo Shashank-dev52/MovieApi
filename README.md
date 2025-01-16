@@ -37,7 +37,8 @@ To find editors filter for known_for_department and use name property
 
 Do not commit your API Key to the repo; use an ignored .env file. Your code should get a bearer token using your API key.
 
-Results
+Outcomes
+
 ![image](https://github.com/user-attachments/assets/cb48f039-def2-417a-bd79-8ecc671c0085)
 Unit Test Case
 ![image](https://github.com/user-attachments/assets/1d83ee83-923f-4e27-aa19-b2bee93e2755)
