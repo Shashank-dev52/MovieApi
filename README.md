@@ -1,8 +1,13 @@
 # Outcomes
+To Run-
+npx ts-node server.ts
+
 
 ![image](https://github.com/user-attachments/assets/cb48f039-def2-417a-bd79-8ecc671c0085)
 
 # Unit Test Case
+To Run-
+npm test
 
 ![image](https://github.com/user-attachments/assets/073c965f-977a-4dd6-860f-f0843b7a6d12)
 
